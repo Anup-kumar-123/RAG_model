@@ -2,8 +2,9 @@ import os
 from typing import List
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter, Language
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import Chroma
+from config import GEMINI_API_KEY
 
 LANG_MAP = {
     ".py": Language.PYTHON,
@@ -13,7 +14,6 @@ LANG_MAP = {
     ".java": Language.JAVA,
     ".html": Language.HTML
 }
-
 
 def chunk_documents(docs: List[Document]) -> List[Document]:
     chunked_docs = []
@@ -33,10 +33,12 @@ def chunk_documents(docs: List[Document]) -> List[Document]:
 
     return chunked_docs
 
-
 def build_vector_store(chunked_docs: List[Document], persist_dir: str = "./chroma_db") -> Chroma:
-    # Switched to HuggingFace local embeddings (No Google API 404 errors)
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    # Uses API instead of heavy local torch models
+    embeddings = GoogleGenerativeAIEmbeddings(
+        model="models/gemini-embedding-2-preview",
+        google_api_key=GEMINI_API_KEY
+    )
 
     return Chroma.from_documents(
         documents=chunked_docs,
