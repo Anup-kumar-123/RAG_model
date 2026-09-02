@@ -11,4 +11,3 @@ edge-tts
 tavily-python
 python-multipart
 python-dotenv
-sentence-transformers
